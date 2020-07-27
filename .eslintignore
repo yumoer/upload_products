@@ -1,5 +1,5 @@
-/build/
-/config/
-/dist/
-/*.js
-/test/unit/coverage/
+src/assets
+src/icons
+public
+dist
+node_modules
