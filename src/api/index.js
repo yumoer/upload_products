@@ -6,9 +6,6 @@ export const Login = query => {
     url: '/auth2/',
     method: 'post',
     data: query, // json
-    headers:{
-      'Authorization': 'JWT ' +JSON.parse(localStorage.getItem("ms_userInfo")).data.token
-    }
   });
 };
 
