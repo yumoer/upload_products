@@ -4,14 +4,14 @@
             <div class="ms-title">后台管理系统</div>
             <el-form :model="param" :rules="rules" ref="login" label-width="0px" class="ms-content">
                 <el-form-item prop="username">
-                    <el-input v-model="param.username" placeholder="username">
+                    <el-input v-model="param.username" placeholder="请输入用户名">
                         <el-button slot="prepend" icon="el-icon-lx-people"></el-button>
                     </el-input>
                 </el-form-item>
                 <el-form-item prop="password">
                     <el-input
                         type="password"
-                        placeholder="password"
+                        placeholder="请输入密码"
                         v-model="param.password"
                         @keyup.enter.native="submitForm()"
                     >
@@ -33,8 +33,8 @@ export default {
     data: function() {
         return {
             param: {
-                username: 'yumoer22',
-                password: 'wang1634',
+                username: '',
+                password: '',
             },
             rules: {
                 username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
