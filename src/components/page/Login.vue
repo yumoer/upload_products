@@ -1,7 +1,7 @@
 <template>
     <div class="login-wrap">
         <div class="ms-login">
-            <div class="ms-title">后台管理系统</div>
+            <div class="ms-title">产品上传管理</div>
             <el-form :model="param" :rules="rules" ref="login" label-width="0px" class="ms-content">
                 <el-form-item prop="username">
                     <el-input v-model="param.username" placeholder="请输入用户名">
@@ -50,7 +50,7 @@ export default {
           return false;
         }else{
           Login(this.param).then(res=>{
-            console.log(res)
+            console.log(res.data)
             if(res.status === 200 || res.status === 201){
               this.$message.success('用户 '+res.data.username+' 登录成功');
               localStorage.setItem('ms_userInfo', JSON.stringify(res));
