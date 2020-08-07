@@ -1,110 +1,42 @@
-import axios from "axios";
-import {
-  invalidCode,
-  messageDuration,
-  noPermissionCode,
-  requestTimeout,
-  successCode,
-  tokenName,
-  contentType,
-} from "@/config/settings";
-import { Loading, Message } from "element-ui";
-import store from "@/store";
-import qs from "qs";
-import router from "@/router";
+import axios from 'axios';
+
 const service = axios.create({
-  baseURL: process.env.VUE_APP_BASE_API,
-  timeout: requestTimeout,
-  headers: {
-    "Content-Type": contentType,
-  },
+    // process.env.NODE_ENV === 'development' 来判断是否开发环境
+    // easy-mock服务挂了，暂时不使用了
+    // baseURL: 'http://192.168.1.59:8000/',
+    baseURL: 'http://47.94.106.106:8000/',
+    timeout: 5000
 });
-let loadingInstance;
+
 service.interceptors.request.use(
-  (config) => {
-    if (store.getters.accessToken) {
-      config.headers[tokenName] = store.getters.accessToken;
+    config => {
+        return config;
+    },
+    error => {
+        console.log(error);
+        return Promise.reject();
     }
-    if (process.env.NODE_ENV !== "test") {
-      if (contentType === "application/x-www-form-urlencoded;charset=UTF-8") {
-        if (config.data && !config.data.param) {
-          config.data = qs.stringify(config.data);
+);
+
+service.interceptors.response.use(
+  config => {
+    console.log(config)
+    //localStorage中获取token
+    if(localStorage.getItem("ms_userInfo")){
+      let token = JSON.parse(localStorage.getItem("ms_userInfo")).data.token;
+      console.log(token)
+      if(token !== null){
+        config.headers = {
+          'Authorization': 'JWT ' +token
         }
       }
     }
-
-    if (
-      config.url.includes("add") ||
-      config.url.includes("edit") ||
-      config.url.includes("set") ||
-      config.url.includes("update") ||
-      config.url.includes("import") ||
-      config.url.includes("export")
-    ) {
-      loadingInstance = Loading.service();
-    }
-
     return config;
   },
-  (error) => {
+  error => {
+    console.log(error);
     return Promise.reject(error);
   }
 );
 
-const errorMsg = (message) => {
-  return Message({
-    message: message,
-    type: "error",
-    duration: messageDuration,
-  });
-};
-
-service.interceptors.response.use(
-  (response) => {
-    if (loadingInstance) {
-      loadingInstance.close();
-    }
-    const { status, data } = response;
-    const { code, msg } = data;
-    if (code !== successCode && code !== 0) {
-      switch (code) {
-        case invalidCode:
-          errorMsg(msg || `后端接口${code}异常`);
-          store.dispatch("user/resetToken");
-          break;
-        case noPermissionCode:
-          router.push({
-            path: "/401",
-          });
-          break;
-        default:
-          errorMsg(msg || `后端接口${code}异常`);
-          break;
-      }
-      return Promise.reject({ code, msg } || "Error");
-    } else {
-      return data;
-    }
-  },
-  (error) => {
-    if (loadingInstance) {
-      loadingInstance.close();
-    }
-    /*网络连接过程异常处理*/
-    let { message } = error;
-    switch (message) {
-      case "Network Error":
-        message = "后端接口连接异常";
-        break;
-      case "timeout":
-        message = "后端接口请求超时";
-        break;
-      case "Request failed with status code":
-        message = "后端接口" + message.substr(message.length - 3) + "异常";
-        break;
-    }
-    errorMsg(message || "后端接口未知异常");
-    return Promise.reject(error);
-  }
-);
 export default service;
