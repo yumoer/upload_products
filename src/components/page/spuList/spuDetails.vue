@@ -21,7 +21,7 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="一级类别" prop="category1_id">
+        <el-form-item label="一级类别" prop="category1">
           <el-select v-model="addFrom.category1" filterable  placeholder="请搜索一级类别" @change="getCategories1">
             <el-option
               v-for="item in tableData1"
@@ -31,7 +31,7 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="二级类别" prop="category2_id">
+        <el-form-item label="二级类别" prop="category2">
           <el-select v-model="addFrom.category2" filterable  placeholder="请搜索二级类别" @change="getCategories2">
             <el-option
               v-for="item in tableData2"
@@ -41,7 +41,7 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="三级类别" prop="category3_id">
+        <el-form-item label="三级类别" prop="category3">
           <el-select v-model="addFrom.category3" filterable  placeholder="请搜索三级类别" @change="getCategories3">
             <el-option
               v-for="item in tableData3"
@@ -272,7 +272,10 @@
           this.$refs.myTextEditor.quill.enable(true);
         });
       }else{
-        this.addFrom = {}
+        this.addFrom = {
+          desc_service:'/',
+          desc_problem:'/'
+        }
       }
     },
 

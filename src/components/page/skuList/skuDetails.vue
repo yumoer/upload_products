@@ -203,13 +203,16 @@
             { required: true, message: '请至少上传一张图片', trigger: 'blur' },
           ],
           price: [
-            { required: true, message: '请选择商城售价', trigger: 'blur' }
+            { required: true, message: '请输入商城售价', trigger: 'blur' }
           ],
           market_price: [
-            { required: true, message: '请选择市场价', trigger: 'blur' }
+            { required: true, message: '请输入市场价', trigger: 'blur' }
           ],
           cost_price: [
-            { required: true, message: '请选择天津供货价', trigger: 'blur' }
+            { required: true, message: '请输入天津供货价', trigger: 'blur' }
+          ],
+          stock: [
+            { required: true, message: '请输入库存', trigger: 'blur' }
           ],
           sale_actives: [
             { required: true, message: '请选择是否促销产品', trigger: 'blur' }
