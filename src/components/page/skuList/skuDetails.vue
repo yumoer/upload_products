@@ -295,7 +295,7 @@
             if(this.addFrom.images[0].image4 !== null){
               this.fileList = [
                 {url:this.addFrom.images[0].image1 !== null? this.addFrom.images[0].image1 : ''},{url:this.addFrom.images[0].image2 !== null? this.addFrom.images[0].image2 : ''},
-                {url:this.addFrom.images[0].image3 !== null? this.addFrom.images[0].image3 : ''}
+                 {url:this.addFrom.images[0].image3 !== null? this.addFrom.images[0].image3 : ''}
                 ,{url:this.addFrom.images[0].image4 !== null? this.addFrom.images[0].image4 : ''}]
             }
             if(this.addFrom.images[0].image5 !== null){

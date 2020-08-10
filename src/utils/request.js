@@ -34,7 +34,10 @@ service.interceptors.response.use(
     return config;
   },
   error => {
-    console.log(error);
+    console.log(error.response.status);
+   /* if(error.response.status === 401){
+      this.vm.$route.push('/login')
+    }*/
     return Promise.reject(error);
   }
 );

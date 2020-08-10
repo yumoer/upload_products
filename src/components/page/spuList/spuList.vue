@@ -109,6 +109,25 @@
           console.log(res);
           this.tableData = res.data.results;
           this.pageTotal = res.data.count;
+        }).catch(error=>{
+          console.log(error)
+          if (error.response !== undefined) {
+            switch (error.response.status) {
+              case 500:
+                this.$message.error('服务器错误')
+                break
+              case 401:
+                this.$message.error('登录过期，请重新登录')
+                localStorage.removeItem('ms_userInfo')
+                break
+              case 403:
+                this.$message.error('您没有执行该操作的权限')
+                break
+              default:
+                this.$message.error('其他错误')
+                break
+            }
+          }
         });
       },
       // 时间转换

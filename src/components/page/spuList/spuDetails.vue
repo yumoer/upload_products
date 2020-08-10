@@ -126,6 +126,8 @@
         tableData2:[],
         tableData3:[],
         query: {
+          page:1,
+          page_size:1000,
           ordering:'-create_time'
         },
         addFrom:{},
@@ -243,7 +245,6 @@
       this.getCategories1()
       this.data = JSON.parse(this.$route.query.data)
       console.log(this.data)
-      this.list = this.tableData
       if(this.data !== ''){
         this.addFrom = this.data
         this.$refs.myTextEditor.quill.enable(false);
@@ -262,7 +263,6 @@
       this.getCategories1()
       this.data = JSON.parse(this.$route.query.data)
       console.log(this.data)
-      this.list = this.tableData
       if(this.data !== ''){
         this.addFrom = this.data
         this.$refs.myTextEditor.quill.enable(false);
@@ -291,9 +291,8 @@
         SpuBrand(this.query).then(res => {
           console.log(res);
           this.tableData = res.data
-          localStorage.setItem('brand',JSON.stringify(res.data))
-          this.tableData = JSON.parse(localStorage.getItem('brand'))
         }).catch(error=>{
+          console.log(error)
           if (error.response !== undefined) {
             switch (error.response.status) {
               case 500:

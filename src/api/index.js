@@ -75,8 +75,8 @@ export const SpuBrand = query => {
     method: 'get',
     headers:{
       'Authorization': 'JWT ' +JSON.parse(localStorage.getItem("ms_userInfo")).data.token
-    }
-    // params: query, // json
+    },
+    params: query, // json
   });
 };
 
