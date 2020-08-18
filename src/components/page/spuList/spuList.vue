@@ -10,12 +10,16 @@
     <div class="container">
       <div class="handle-box">
         <el-button type="primary" icon="el-icon-lx-add" @click="handleAdd">新增</el-button>
+
         <el-button
           type="danger"
           icon="el-icon-delete"
           class="handle-del mr10"
           @click="delAllSelection"
         >批量删除</el-button>
+
+        <el-input v-model="query.q" clearable placeholder="请输入ID或商品名称查询" class="handle-input mr10" @keyup.enter.native="handleSearch"></el-input>
+        <el-button type="primary" icon="el-icon-search" @click="handleSearch">搜索</el-button>
       </div>
       <el-table
         :data="tableData"
@@ -78,14 +82,15 @@
 </template>
 
 <script>
-  import { SpuList,SpudelDetails} from '../../../api/index';
+  import { SpuList,SpudelDetails,skuSearchspuList} from '../../../api/index';
   export default {
     name: 'spu',
     data() {
       return {
         query: {
           page: 1,
-          page_size: 10
+          page_size: 10,
+          q:''
         },
         tableData: [],
         multipleSelection: [],
@@ -130,6 +135,7 @@
           }
         });
       },
+
       // 时间转换
       timeFormat(timestamp){
         //timestamp是整数，否则要parseInt转换,不会出现少个0的情况
@@ -142,10 +148,41 @@
         return year+'-'+month+'-'+date+' '+hours+':'+minutes;
       },
 
+      getSearchData(){
+        skuSearchspuList(this.query).then(res => {
+          console.log(res);
+          this.tableData = res.data.results;
+          this.pageTotal = res.data.count;
+        }).catch(error=>{
+          if (error.response !== undefined) {
+            switch (error.response.status) {
+              case 500:
+                this.$message.error('服务器错误')
+                break
+              case 401:
+                this.$message.error('登录过期，请重新登录')
+                localStorage.removeItem('ms_userInfo')
+                break
+              case 403:
+                this.$message.error('您没有执行该操作的权限')
+                break
+              default:
+                this.$message.error('其他错误')
+                break
+            }
+          }
+        });
+      },
+
       // 触发搜索按钮
       handleSearch() {
-        this.$set(this.query, 'pageIndex', 1);
-        this.getData();
+        console.log(this.query.q)
+        if(this.query.q === ''){
+          this.getData()
+        }else{
+          this.getSearchData()
+        }
+
       },
       // 删除操作
       handleDelete(index, row) {
@@ -200,7 +237,11 @@
       // 分页导航
       handlePageChange(val) {
         this.$set(this.query, 'page', val);
-        this.getData();
+        if(this.query.q === ''){
+          this.getData()
+        }else{
+          this.getSearchData()
+        }
       }
     }
   };

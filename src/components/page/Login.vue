@@ -40,6 +40,8 @@ export default {
                 username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
                 password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
             },
+          publicKey:'wwwwwwwwwwwwww'
+
         };
     },
   methods: {
@@ -49,6 +51,9 @@ export default {
           this.$message.error('请输入用户名和密码');
           return false;
         }else{
+          console.log(this.param,this.param.password,this)
+          /*let data = this.$encryptedData(this.publicKey,this.param.password)
+          console.log(data)*/
           Login(this.param).then(res=>{
             console.log(res.data)
             if(res.status === 200 || res.status === 201){
@@ -65,6 +70,39 @@ export default {
 
 
     },
+    /*/!* JSEncrypt加密 *!/
+    rsaPublicData (data) {
+      const publicKey = '公钥key'
+      let jsencrypt = new JSEncrypt()
+      jsencrypt.setPublicKey(publicKey)
+      let result = jsencrypt.encrypt(JSON.stringify(data))
+      return result
+    },
+    /!* JSEncrypt解密 *!/
+    rsaPrivateData (data) {
+      const privateKey = '私钥key'
+      let jsencrypt = new JSEncrypt()
+      jsencrypt.setPrivateKey(privateKey)
+      let result = jsencrypt.encrypt(JSON.stringify(data))
+      return result
+    },
+    encrypt (data) {
+      const PUBLIC_KEY = '公钥key'
+      let encryptor = new encrypt()
+      encryptor.setPublicKey(PUBLIC_KEY)
+      /!* 加密前必须把数据转化成字符串否则解不出来,找了好久才发现/(ㄒoㄒ)/~~ *!/
+      const result = encryptor.encryptLong(JSON.stringify(data))
+      return result
+    },
+    // 解密 - PRIVATE_KEY - 验证
+    // @param data String
+    decrypt(data) {
+      const PRIVATE_KEY = '私钥key'
+      let encryptor = new encrypt()
+      encryptor.setPrivateKey(PRIVATE_KEY)
+      let result = encryptor.decryptLong(JSON.stringify(data));
+      return result
+    }*/
   },
 };
 </script>
@@ -82,7 +120,7 @@ export default {
     line-height: 50px;
     text-align: center;
     font-size: 20px;
-    color: #fff;
+    color: #000;
     border-bottom: 1px solid #ddd;
 }
 .ms-login {

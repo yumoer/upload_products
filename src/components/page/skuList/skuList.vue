@@ -15,6 +15,8 @@
           class="handle-del mr10"
           @click="delAllSelection"
         >批量删除</el-button>
+        <el-input v-model="query.q" clearable placeholder="请输入ID或商品名称查询" class="handle-input mr10"  @keyup.enter.native="handleSearch"></el-input>
+        <el-button type="primary" icon="el-icon-search" @click="handleSearch">搜索</el-button>
       </div>
       <el-table
         :data="tableData"
@@ -67,7 +69,7 @@
 </template>
 
 <script>
-  import { SkuList,SkudelDetails} from '../../../api/index';
+  import { SkuList,SkudelDetails,skuSearchskuList} from '../../../api/index';
   export default {
     data() {
       return {
@@ -75,6 +77,7 @@
           page: 1,
           page_size: 10,
           ordering:'-create_time',
+          q:''
         },
         delList: [],
         multipleSelection:[],
@@ -118,6 +121,35 @@
         });
       },
 
+      getSearchData(){
+        skuSearchskuList(this.query).then(res => {
+          console.log(res);
+          this.tableData = res.data.results;
+          if(this.tableData.length === 0){
+            this.$message.success('数据为空')
+          }
+          this.pageTotal = res.data.count
+        }).catch(error=>{
+          if (error.response !== undefined) {
+            switch (error.response.status) {
+              case 500:
+                this.$message.error('服务器错误')
+                break
+              case 401:
+                this.$message.error('登录过期，请重新登录')
+                localStorage.removeItem('ms_userInfo')
+                break
+              case 403:
+                this.$message.error('您没有执行该操作的权限')
+                break
+              default:
+                this.$message.error('其他错误')
+                break
+            }
+          }
+        });
+      },
+
       // 绑定规格选项
       handleAdd(index, row){
         this.$router.push({name:'bindSpecificationValueList',query:{skuId:JSON.stringify(row.id),spuId:JSON.stringify(row.goods)}})
@@ -127,6 +159,16 @@
       handleEdit(index, row){
         console.log(row)
         this.$router.push('/skuDetails?id='+row.id)
+      },
+
+      handleSearch(){
+        if(this.query.q === ''){
+          this.getData()
+        }else{
+          this.getSearchData()
+
+        }
+
       },
 
       // 删除操作
@@ -143,7 +185,9 @@
               this.getData()
             })
           })
-          .catch(() => {});
+          .catch(() => {
+            this.$message.error('服务器错误');
+          });
       },
 
       // 多选操作
@@ -165,7 +209,11 @@
       // 分页导航
       handlePageChange(val) {
         this.$set(this.query, 'page', val);
-        this.getData();
+        if(this.query.q === ''){
+          this.getData()
+        }else{
+          this.getSearchData()
+        }
       }
     }
   };

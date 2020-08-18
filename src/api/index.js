@@ -243,6 +243,30 @@ export const skuEditSpecification = query => {
   });
 };
 
+//  sku列表查询
+export const skuSearchskuList = query => {
+  return request({
+    url: '/search/sku/',
+    method: 'get',
+    params: query, // json
+    headers:{
+      'Authorization': 'JWT ' +JSON.parse(localStorage.getItem("ms_userInfo")).data.token
+    }
+  });
+};
+
+//  spu列表查询
+export const skuSearchspuList = query => {
+  return request({
+    url: '/search/goods/',
+    method: 'get',
+    params: query, // json
+    headers:{
+      'Authorization': 'JWT ' +JSON.parse(localStorage.getItem("ms_userInfo")).data.token
+    }
+  });
+};
+
 
 
 

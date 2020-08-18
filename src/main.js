@@ -12,6 +12,29 @@ import './components/common/directives';
 import 'babel-polyfill';
 // import 'quill/dist/quill.core.css';
 import 'quill/dist/quill.snow.css';
+
+import { JSEncrypt } from 'jsencrypt'
+
+Vue.prototype.$encryptedData = function(publicKey, data) {
+  //new一个对象
+  let encrypt = new JSEncrypt()
+  //设置公钥
+  encrypt.setPublicKey(publicKey)
+  //password是要加密的数据,此处不用注意+号,因为rsa自己本身已经base64转码了,不存在+,全部是二进制数据
+  let result = encrypt.encrypt(data)
+  return result
+}
+//JSEncrypt解密方法
+Vue.prototype.$decryptData = function(privateKey, data) {
+  // 新建JSEncrypt对象
+  let decrypt = new JSEncrypt()
+  // 设置私钥
+  decrypt.setPrivateKey(privateKey)
+  // 解密数据
+  let result = decrypt.decrypt(data)
+  return result
+}
+
 // import 'quill/dist/quill.bubble.css';
 import * as Quill from 'quill'; // 富文本基于quill
 Vue.use(VueQuillEditor)

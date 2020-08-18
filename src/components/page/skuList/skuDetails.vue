@@ -117,7 +117,7 @@
             type="textarea"
             :autosize="{ minRows: 4, maxRows: 4}"
             placeholder="请输入规格详细参数"
-            v-model="addFrom.desc_ware">
+            v-model="addFrom.spec_params">
           </el-input>
         </el-form-item>
         <el-form-item label="限制购买数量">
@@ -199,7 +199,7 @@
           name: [
             { required: true, message: '请输入商品名称', trigger: 'blur' },
           ],
-          image1: [
+          images: [
             { required: true, message: '请至少上传一张图片', trigger: 'blur' },
           ],
           price: [
@@ -224,10 +224,13 @@
             { required: true, message: '请选择是否环保', trigger: 'blur' }
           ],
           goods_model: [
-            { required: true, message: '请选择是否进口', trigger: 'blur' }
+            { required: true, message: '请输入型号', trigger: 'blur' }
           ],
           unit: [
             { required: true, message: '请选择销量单位', trigger: 'blur' }
+          ],
+          imported:[
+            { required: true, message: '请选择是否进口', trigger: 'blur' }
           ],
           supply_unit:[
             { required: true, message: '请选择对接单位', trigger: 'blur' }
