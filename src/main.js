@@ -13,8 +13,6 @@ import 'babel-polyfill';
 import 'quill/dist/quill.core.css';
 import 'quill/dist/quill.snow.css';
 
-import { JSEncrypt } from 'jsencrypt'
-
 Vue.prototype.$encryptedData = function(publicKey, data) {
   //new一个对象
   let encrypt = new JSEncrypt()

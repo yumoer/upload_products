@@ -71,39 +71,6 @@ export default {
         }
       })
     },
-    /*/!* JSEncrypt加密 *!/
-    rsaPublicData (data) {
-      const publicKey = '公钥key'
-      let jsencrypt = new JSEncrypt()
-      jsencrypt.setPublicKey(publicKey)
-      let result = jsencrypt.encrypt(JSON.stringify(data))
-      return result
-    },
-    /!* JSEncrypt解密 *!/
-    rsaPrivateData (data) {
-      const privateKey = '私钥key'
-      let jsencrypt = new JSEncrypt()
-      jsencrypt.setPrivateKey(privateKey)
-      let result = jsencrypt.encrypt(JSON.stringify(data))
-      return result
-    },
-    encrypt (data) {
-      const PUBLIC_KEY = '公钥key'
-      let encryptor = new encrypt()
-      encryptor.setPublicKey(PUBLIC_KEY)
-      /!* 加密前必须把数据转化成字符串否则解不出来,找了好久才发现/(ㄒoㄒ)/~~ *!/
-      const result = encryptor.encryptLong(JSON.stringify(data))
-      return result
-    },
-    // 解密 - PRIVATE_KEY - 验证
-    // @param data String
-    decrypt(data) {
-      const PRIVATE_KEY = '私钥key'
-      let encryptor = new encrypt()
-      encryptor.setPrivateKey(PRIVATE_KEY)
-      let result = encryptor.decryptLong(JSON.stringify(data));
-      return result
-    }*/
   },
 };
 </script>
