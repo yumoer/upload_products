@@ -3,7 +3,7 @@
     <div class="crumbs">
       <el-breadcrumb separator=">">
         <el-breadcrumb-item to="/spuList"><i class="el-icon-lx-copy"></i> 商品SPU</el-breadcrumb-item>
-        <el-breadcrumb-item>{{data === '' ? '新增' : '编辑'}}</el-breadcrumb-item>
+        <el-breadcrumb-item>{{id === '' ? '新增' : '编辑'}}</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
     <div class="container">
@@ -58,22 +58,14 @@
           <el-input v-model="addFrom.comments" style="width: 215px" placeholder="请输入评价数"></el-input>
         </el-form-item>
         <el-form-item label="详细介绍" prop="desc_detail">
-          <quill-editor ref="myTextEditor"
-                        v-model="addFrom.desc_detail"
-                        :option="editorOption"
-                        @change="onEditorChange($event)"
-                        @focus="onEditorFocus($event)"
-                        @blur="onEditorBlur($event)">
-          </quill-editor>
+          <div>
+            <div id="editorElem" ref="editor" style="text-align:left;"></div>
+          </div>
         </el-form-item>
         <el-form-item label="包装信息" prop="desc_pack">
-          <quill-editor ref="myTextEditor"
-                        v-model="addFrom.desc_pack"
-                        :option="editorOption"
-                        @change="onEditorChange($event)"
-                        @focus="onEditorFocus($event)"
-                        @blur="onEditorBlur($event)">
-          </quill-editor>
+          <div>
+            <div id="editorElem1" ref="editor1" style="text-align:left;z-index: -1"></div>
+          </div>
         </el-form-item>
         <el-form-item label="售后服务" prop="desc_service">
           <el-input
@@ -84,30 +76,22 @@
           </el-input>
         </el-form-item>
         <el-form-item label="常见问题" prop="desc_problem">
-          <!--<quill-editor ref="myTextEditor"
-                        v-model="addFrom.desc_problem"
-                        :option="editorOption"
-                        @change="onEditorChange($event)">
-          </quill-editor>-->
-          <el-input
-            type="textarea"
-            :autosize="{ minRows: 4, maxRows: 4}"
-            placeholder="请输入常见问题"
-            v-model="addFrom.desc_problem">
-          </el-input>
+          <div>
+            <div id="editorElem2" ref="editor2" style="text-align:left;z-index: -1"></div>
+          </div>
         </el-form-item>
         <el-form-item label="包装清单" placeholder="请输入包装清单" prop="desc_ware">
           <el-input
             type="textarea"
-            :autosize="{ minRows: 4, maxRows: 4}"
+            :autosize="{ minRows: 4, maxRows: 4 }"
             placeholder="请输入包装清单"
             v-model="addFrom.desc_ware">
           </el-input>
         </el-form-item>
       </el-form>
-      <el-form style="position: fixed;right:100px;bottom: 20px;z-index: 1">
+      <el-form style="text-align: right;margin-right: 30px">
         <el-form-item >
-          <el-button class="editor-btn" type="primary" @click="submitForm()">{{data !== '' ?'修改':'保存'}}</el-button>
+          <el-button class="editor-btn" type="primary" @click="submitForm()">{{id !== '' ?'修改':'保存'}}</el-button>
           <el-button class="editor-btn" @click="goBack()">返回上一页</el-button>
         </el-form-item>
       </el-form>
@@ -116,7 +100,8 @@
 </template>
 
 <script>
-  import {SpuCategory1,SpuCategory2,SpuaddDetails,SpuBrand,SpueditDetails} from '../../../api/index'
+  import {SpuDetails,SpuCategory1,SpuCategory2,SpuaddDetails,SpuBrand,SpueditDetails} from '../../../api/index'
+  import E from 'wangeditor'
   export default {
     name: 'editor',
     data: function(){
@@ -131,73 +116,13 @@
           ordering:'-create_time'
         },
         addFrom:{},
-        data:{},
+        id:'',
         // 渲染列表，限制在20个以内
         list: [],
-        editorOption: {
-          placeholder: 'Hello World',
-          modules: {
-            ImageExtend: {
-              // 如果不作设置，即{}  则依然开启复制粘贴功能且以base64插入
-              name: "file", // 图片参数名
-              size: 3, // 可选参数 图片大小，单位为M，1M = 1024kb
-              action: "/api/admin/sys-file/uploadImg", // 服务器地址, 如果action为空，则采用base64插入图片
-              // response 为一个函数用来获取服务器返回的具体图片地址
-              // 例如服务器返回{code: 200; data:{ url: 'baidu.com'}}
-              // 则 return res.data.url
-              response: res => {
-                return res.data;
-              },
-              headers: xhr => {
-                // 上传图片请求需要携带token的 在xhr.setRequestHeader中设置
-                xhr.setRequestHeader(
-                  "Authorization",
-                  this.getCookie("username")
-                    ? this.getCookie("username").token_type +
-                    this.getCookie("username").access_token
-                    : "Basic emh4eTp6aHh5"
-                );
-              }, // 可选参数 设置请求头部
-              sizeError: () => {}, // 图片超过大小的回调
-              start: () => {}, // 可选参数 自定义开始上传触发事件
-              end: () => {}, // 可选参数 自定义上传结束触发的事件，无论成功或者失败
-              error: () => {}, // 可选参数 上传失败触发的事件
-              success: () => {}, // 可选参数  上传成功触发的事件
-              change: (xhr, formData) => {
-                // xhr.setRequestHeader('myHeader','myValue')
-                // formData.append('token', 'myToken')
-              } // 可选参数 每次选择图片触发，也可用来设置头部，但比headers多了一个参数，可设置formData
-            },
-
-            toolbar: {
-              // 如果不上传图片到服务器，此处不必配置
-              container: [
-                ["bold", "italic", "underline", "strike"], // toggled buttons
-                ["blockquote", "code-block"],
-
-                [{ header: 1 }, { header: 2 }], // custom button values
-                [{ list: "ordered" }, { list: "bullet" }],
-                [{ script: "sub" }, { script: "super" }], // superscript/subscript
-                [{ indent: "-1" }, { indent: "+1" }], // outdent/indent
-                [{ direction: "rtl" }], // text direction
-
-                [{ size: ["small", false, "large", "huge"] }], // custom dropdown
-                [{ header: [1, 2, 3, 4, 5, 6, false] }],
-
-                [{ color: [] }, { background: [] }], // dropdown with defaults from theme
-                [{ font: [] }],
-                [{ align: [] }],
-                ["image"] //去除video即可
-              ], // container为工具栏，此次引入了全部工具栏，也可自行配置
-              handlers: {
-                image: function() {
-                  // 劫持原来的图片点击按钮事件
-                  QuillWatch.emit(this.quill.id);
-                }
-              }
-            }
-          }
-        },
+        editor: '',
+        editor1: '',
+        editor2: '',
+        editorContent: '',
         rules: {
           name: [
             { required: true, message: '请输入商品名称', trigger: 'blur' },
@@ -243,49 +168,181 @@
     created(){
       this.getBrand()
       this.getCategories1()
-      this.data = JSON.parse(this.$route.query.data)
-      console.log(this.data)
-      if(this.data !== ''){
-        this.addFrom = this.data
-        this.$refs.myTextEditor.quill.enable(false);
-        this.$nextTick(function() {
-          //丢掉编辑器焦点并重新启用编辑器
-          this.$refs.myTextEditor.quill.blur();
-          this.$refs.myTextEditor.quill.enable(true);
-        });
+      this.id = JSON.parse(this.$route.query.id)
+      console.log(this.id)
+      if(this.id !== ''){
+        this.getData()
       }else{
         this.addFrom = {}
       }
-
     },
     activated(){
       this.getBrand()
       this.getCategories1()
-      this.data = JSON.parse(this.$route.query.data)
-      console.log(this.data)
-      if(this.data !== ''){
-        this.addFrom = this.data
-        this.$refs.myTextEditor.quill.enable(false);
-        this.$nextTick(function() {
-          //丢掉编辑器焦点并重新启用编辑器
-          this.$refs.myTextEditor.quill.blur();
-          this.$refs.myTextEditor.quill.enable(true);
-        });
+      this.id = JSON.parse(this.$route.query.id)
+      if(this.id !== ''){
+        this.getData()
       }else{
-        this.addFrom = {
-          desc_service:'/',
-          desc_problem:'/'
-        }
+        this.addFrom = {}
       }
     },
 
-    computed:{
-      editor(){
-        return this.$refs.myTextEditor.quill;
-      },
+    mounted() {
+      /*详细介绍*/
+      this.editor = new E(this.$refs.editor)
+      this.editor.customConfig.uploadImgShowBase64 = false //图片以base64形式保存
+      this.editor.customConfig.uploadImgServer = 'http://47.94.106.106:8000/rich/text/image/'; // 配置服务器端地址
+      this.editor.customConfig.uploadImgHeaders = {}; // 自定义 header
+      this.editor.customConfig.uploadFileName = "file"; // 后端接受上传文件的参数名
+      this.editor.customConfig.uploadImgMaxSize = 10 * 1024 * 1024; // 将图片大小限制为 10M
+      this.editor.customConfig.uploadImgMaxLength = 6; // 限制一次最多上传 3 张图片
+      this.editor.customConfig.uploadImgTimeout = 3 * 60 * 1000; // 设置超时时间
+      //下面的为一些配置参数，默认全部都有，我们需要那些留下那些即可
+      this.editor.customConfig.menus = [
+        "head", // 标题
+        "bold", // 粗体
+        "fontSize", // 字号
+        "fontName", // 字体
+        "italic", // 斜体
+        "underline", // 下划线
+        "strikeThrough", // 删除线
+        "foreColor", // 文字颜色
+        "backColor", // 背景颜色
+        "link", // 插入链接
+        "list", // 列表
+        "justify", // 对齐方式
+        // 'quote',  // 引用
+        "emoticon", // 表情
+        "image", // 插入图片
+        "table", // 表格
+        "video", // 插入视频
+        "code", // 插入代码
+        "undo", // 撤销
+        "redo" // 重复
+      ];
+      //聚焦时候函数
+      this.editor.customConfig.onfocus = function() {
+        // console.log("onfocus")
+      };
+      //失焦时候函数
+      this.editor.customConfig.onblur = function() {
+        // console.log("onblur")
+      };
+      //change事件，当富文本编辑器内容发生变化时便会触发此函数
+      this.editor.customConfig.onchange = (html)=> {
+        console.log(html)
+        this.addFrom.desc_detail = html
+        console.log()
+      };
+      this.editor.create(); //以上配置完成之后调用其create()方法进行创建
+      this.editor.txt.html(); //创建完成之后的默认内容
+
+      /*包装清单*/
+      // var editor = new E('#editorElem')
+      this.editor1 = new E(this.$refs.editor1)
+      this.editor1.customConfig.uploadImgShowBase64 = false //图片以base64形式保存
+      this.editor1.customConfig.uploadImgServer = 'http://47.94.106.106:8000/rich/text/image/'; // 配置服务器端地址
+      this.editor1.customConfig.uploadImgHeaders = {}; // 自定义 header
+      this.editor1.customConfig.uploadFileName = "file"; // 后端接受上传文件的参数名
+      this.editor1.customConfig.uploadImgMaxSize = 10 * 1024 * 1024; // 将图片大小限制为 10M
+      this.editor1.customConfig.uploadImgMaxLength = 6; // 限制一次最多上传 3 张图片
+      this.editor1.customConfig.uploadImgTimeout = 3 * 60 * 1000; // 设置超时时间
+      //下面的为一些配置参数，默认全部都有，我们需要那些留下那些即可
+      this.editor1.customConfig.menus = [
+        "head", // 标题
+        "bold", // 粗体
+        "fontSize", // 字号
+        "fontName", // 字体
+        "italic", // 斜体
+        "underline", // 下划线
+        "strikeThrough", // 删除线
+        "foreColor", // 文字颜色
+        "backColor", // 背景颜色
+        "link", // 插入链接
+        "list", // 列表
+        "justify", // 对齐方式
+        // 'quote',  // 引用
+        "emoticon", // 表情
+        "image", // 插入图片
+        "table", // 表格
+        "video", // 插入视频
+        "code", // 插入代码
+        "undo", // 撤销
+        "redo" // 重复
+      ];
+      //聚焦时候函数
+      this.editor1.customConfig.onfocus = function() {
+        //console.log("onfocus")
+      };
+      //失焦时候函数
+      this.editor1.customConfig.onblur = function() {
+        //console.log("onblur")
+      };
+      //change事件，当富文本编辑器内容发生变化时便会触发此函数
+      this.editor1.customConfig.onchange = (html)=> {
+
+        this.addFrom.desc_pack = html
+      };
+      this.editor1.create(); //以上配置完成之后调用其create()方法进行创建
+      this.editor1.txt.html(); //创建完成之后的默认内容
+
+      /*常见问题*/
+      this.editor2 = new E(this.$refs.editor2)
+      this.editor2.customConfig.uploadImgShowBase64 = false //图片以base64形式保存
+      this.editor2.customConfig.uploadImgServer = 'http://47.94.106.106:8000/rich/text/image/'; // 配置服务器端地址
+      this.editor2.customConfig.uploadImgHeaders = {}; // 自定义 header
+      this.editor2.customConfig.uploadFileName = "file"; // 后端接受上传文件的参数名
+      this.editor2.customConfig.uploadImgMaxSize = 10 * 1024 * 1024; // 将图片大小限制为 10M
+      this.editor2.customConfig.uploadImgMaxLength = 6; // 限制一次最多上传 3 张图片
+      this.editor2.customConfig.uploadImgTimeout = 3 * 60 * 1000; // 设置超时时间
+      //下面的为一些配置参数，默认全部都有，我们需要那些留下那些即可
+      this.editor2.customConfig.menus = [
+        "head", // 标题
+        "bold", // 粗体
+        "fontSize", // 字号
+        "fontName", // 字体
+        "italic", // 斜体
+        "underline", // 下划线
+        "strikeThrough", // 删除线
+        "foreColor", // 文字颜色
+        "backColor", // 背景颜色
+        "link", // 插入链接
+        "list", // 列表
+        "justify", // 对齐方式
+        // 'quote',  // 引用
+        "emoticon", // 表情
+        "image", // 插入图片
+        "table", // 表格
+        "video", // 插入视频
+        "code", // 插入代码
+        "undo", // 撤销
+        "redo" // 重复
+      ];
+      //聚焦时候函数
+      this.editor2.customConfig.onfocus = function() {
+        //console.log("onfocus")
+      };
+      //失焦时候函数
+      this.editor2.customConfig.onblur = function() {
+        //console.log("onblur")
+      };
+      //change事件，当富文本编辑器内容发生变化时便会触发此函数
+      this.editor2.customConfig.onchange = (html)=> {
+        this.addFrom.desc_detail = html
+      };
+      this.editor2.create(); //以上配置完成之后调用其create()方法进行创建
+      this.editor2.txt.html(); //创建完成之后的默认内容
     },
 
+
     methods: {
+      getData(){
+        SpuDetails(this.id).then(res => {
+          console.log(res);
+          this.addFrom = res.data
+          this.editorElem()
+        });
+      },
       // 品牌
       getBrand(){
         SpuBrand(this.query).then(res => {
@@ -338,16 +395,305 @@
         });
       },
 
-      /*filterList(query = ''){
-        let arr = this.tableData.filter(item => {
-          return item.label.includes(query) || item.id.includes(query);
-        });
-        if (arr.length > 20) {
-          this.list = arr.slice(0, 20);
-        } else {
-          this.list = arr;
-        }
-      },*/
+      editorElem(){
+        /*详细介绍*/
+        this.editor = new E(this.$refs.editor)
+        this.editor.customConfig.uploadImgShowBase64 = false //图片以base64形式保存
+        this.editor.customConfig.uploadImgServer = 'http://47.94.106.106:8000/rich/text/image/'; // 配置服务器端地址
+        this.editor.customConfig.uploadImgHeaders = {}; // 自定义 header
+        this.editor.customConfig.uploadFileName = "file"; // 后端接受上传文件的参数名
+        this.editor.customConfig.uploadImgMaxSize = 10 * 1024 * 1024; // 将图片大小限制为 10M
+        this.editor.customConfig.uploadImgMaxLength = 6; // 限制一次最多上传 3 张图片
+        this.editor.customConfig.uploadImgTimeout = 3 * 60 * 1000; // 设置超时时间
+        //下面的为一些配置参数，默认全部都有，我们需要那些留下那些即可
+        this.editor.customConfig.menus = [
+          "head", // 标题
+          "bold", // 粗体
+          "fontSize", // 字号
+          "fontName", // 字体
+          "italic", // 斜体
+          "underline", // 下划线
+          "strikeThrough", // 删除线
+          "foreColor", // 文字颜色
+          "backColor", // 背景颜色
+          "link", // 插入链接
+          "list", // 列表
+          "justify", // 对齐方式
+          // 'quote',  // 引用
+          "emoticon", // 表情
+          "image", // 插入图片
+          "table", // 表格
+          "video", // 插入视频
+          "code", // 插入代码
+          "undo", // 撤销
+          "redo" // 重复
+        ];
+        //聚焦时候函数
+        this.editor.customConfig.onfocus = function() {
+          console.log("onfocus")
+        };
+        //失焦时候函数
+        this.editor.customConfig.onblur = function() {
+          console.log("onblur")
+        };
+        //change事件，当富文本编辑器内容发生变化时便会触发此函数
+        this.editor.customConfig.onchange = (html)=> {
+          console.log(html)
+          this.addFrom.desc_detail = html
+          console.log(this.addFrom.desc_detail)
+        };
+
+        this.editor.create(); //以上配置完成之后调用其create()方法进行创建
+        this.editor.txt.html(this.addFrom.desc_detail); //创建完成之后的默认内容
+
+        /*包装清单*/
+        // var editor = new E('#editorElem')
+        this.editor1 = new E(this.$refs.editor1)
+        this.editor1.customConfig.uploadImgShowBase64 = false //图片以base64形式保存
+        this.editor1.customConfig.uploadImgServer = 'http://47.94.106.106:8000/rich/text/image/'; // 配置服务器端地址
+        this.editor1.customConfig.uploadImgHeaders = {}; // 自定义 header
+        this.editor1.customConfig.uploadFileName = "file"; // 后端接受上传文件的参数名
+        this.editor1.customConfig.uploadImgMaxSize = 10 * 1024 * 1024; // 将图片大小限制为 10M
+        this.editor1.customConfig.uploadImgMaxLength = 6; // 限制一次最多上传 3 张图片
+        this.editor1.customConfig.uploadImgTimeout = 3 * 60 * 1000; // 设置超时时间
+        //下面的为一些配置参数，默认全部都有，我们需要那些留下那些即可
+        this.editor1.customConfig.menus = [
+          "head", // 标题
+          "bold", // 粗体
+          "fontSize", // 字号
+          "fontName", // 字体
+          "italic", // 斜体
+          "underline", // 下划线
+          "strikeThrough", // 删除线
+          "foreColor", // 文字颜色
+          "backColor", // 背景颜色
+          "link", // 插入链接
+          "list", // 列表
+          "justify", // 对齐方式
+          // 'quote',  // 引用
+          "emoticon", // 表情
+          "image", // 插入图片
+          "table", // 表格
+          "video", // 插入视频
+          "code", // 插入代码
+          "undo", // 撤销
+          "redo" // 重复
+        ];
+        //聚焦时候函数
+        this.editor1.customConfig.onfocus = function() {
+          //console.log("onfocus")
+        };
+        //失焦时候函数
+        this.editor1.customConfig.onblur = function() {
+          //console.log("onblur")
+        };
+        //change事件，当富文本编辑器内容发生变化时便会触发此函数
+        this.editor1.customConfig.onchange = (html)=> {
+
+          this.addFrom.desc_pack = html
+        };
+        this.editor1.create(); //以上配置完成之后调用其create()方法进行创建
+        this.editor1.txt.html(this.addFrom.desc_pack); //创建完成之后的默认内容
+
+        /*常见问题*/
+        this.editor2 = new E(this.$refs.editor2)
+        this.editor2.customConfig.uploadImgShowBase64 = false //图片以base64形式保存
+        this.editor2.customConfig.uploadImgServer = 'http://47.94.106.106:8000/rich/text/image/'; // 配置服务器端地址
+        this.editor2.customConfig.uploadImgHeaders = {}; // 自定义 header
+        this.editor2.customConfig.uploadFileName = "file"; // 后端接受上传文件的参数名
+        this.editor2.customConfig.uploadImgMaxSize = 10 * 1024 * 1024; // 将图片大小限制为 10M
+        this.editor2.customConfig.uploadImgMaxLength = 6; // 限制一次最多上传 3 张图片
+        this.editor2.customConfig.uploadImgTimeout = 3 * 60 * 1000; // 设置超时时间
+        //下面的为一些配置参数，默认全部都有，我们需要那些留下那些即可
+        this.editor2.customConfig.menus = [
+          "head", // 标题
+          "bold", // 粗体
+          "fontSize", // 字号
+          "fontName", // 字体
+          "italic", // 斜体
+          "underline", // 下划线
+          "strikeThrough", // 删除线
+          "foreColor", // 文字颜色
+          "backColor", // 背景颜色
+          "link", // 插入链接
+          "list", // 列表
+          "justify", // 对齐方式
+          // 'quote',  // 引用
+          "emoticon", // 表情
+          "image", // 插入图片
+          "table", // 表格
+          "video", // 插入视频
+          "code", // 插入代码
+          "undo", // 撤销
+          "redo" // 重复
+        ];
+        //聚焦时候函数
+        this.editor2.customConfig.onfocus = function() {
+          //console.log("onfocus")
+        };
+        //失焦时候函数
+        this.editor2.customConfig.onblur = function() {
+          //console.log("onblur")
+        };
+        //change事件，当富文本编辑器内容发生变化时便会触发此函数
+        this.editor2.customConfig.onchange = (html)=> {
+          this.addFrom.desc_detail = html
+        };
+        this.editor2.create(); //以上配置完成之后调用其create()方法进行创建
+        this.editor2.txt.html(this.addFrom.desc_problem); //创建完成之后的默认内容
+      },
+
+      editorElem1(){
+        /*详细介绍*/
+        this.editor = new E(this.$refs.editor)
+        this.editor.customConfig.uploadImgShowBase64 = false //图片以base64形式保存
+        this.editor.customConfig.uploadImgServer = 'http://47.94.106.106:8000/rich/text/image/'; // 配置服务器端地址
+        this.editor.customConfig.uploadImgHeaders = {}; // 自定义 header
+        this.editor.customConfig.uploadFileName = "file"; // 后端接受上传文件的参数名
+        this.editor.customConfig.uploadImgMaxSize = 10 * 1024 * 1024; // 将图片大小限制为 10M
+        this.editor.customConfig.uploadImgMaxLength = 6; // 限制一次最多上传 3 张图片
+        this.editor.customConfig.uploadImgTimeout = 3 * 60 * 1000; // 设置超时时间
+        //下面的为一些配置参数，默认全部都有，我们需要那些留下那些即可
+        this.editor.customConfig.menus = [
+          "head", // 标题
+          "bold", // 粗体
+          "fontSize", // 字号
+          "fontName", // 字体
+          "italic", // 斜体
+          "underline", // 下划线
+          "strikeThrough", // 删除线
+          "foreColor", // 文字颜色
+          "backColor", // 背景颜色
+          "link", // 插入链接
+          "list", // 列表
+          "justify", // 对齐方式
+          // 'quote',  // 引用
+          "emoticon", // 表情
+          "image", // 插入图片
+          "table", // 表格
+          "video", // 插入视频
+          "code", // 插入代码
+          "undo", // 撤销
+          "redo" // 重复
+        ];
+        //聚焦时候函数
+        this.editor.customConfig.onfocus = function() {
+          console.log("onfocus")
+        };
+        //失焦时候函数
+        this.editor.customConfig.onblur = function() {
+          console.log("onblur")
+        };
+        //change事件，当富文本编辑器内容发生变化时便会触发此函数
+        this.editor.customConfig.onchange = (html)=> {
+          console.log(html)
+          this.addFrom.desc_detail = html
+          console.log(this.addFrom.desc_detail)
+        };
+
+        this.editor.create(); //以上配置完成之后调用其create()方法进行创建
+        this.editor.txt.html(); //创建完成之后的默认内容
+
+        /*包装清单*/
+        // var editor = new E('#editorElem')
+        this.editor1 = new E(this.$refs.editor1)
+        this.editor1.customConfig.uploadImgShowBase64 = false //图片以base64形式保存
+        this.editor1.customConfig.uploadImgServer = 'http://47.94.106.106:8000/rich/text/image/'; // 配置服务器端地址
+        this.editor1.customConfig.uploadImgHeaders = {}; // 自定义 header
+        this.editor1.customConfig.uploadFileName = "file"; // 后端接受上传文件的参数名
+        this.editor1.customConfig.uploadImgMaxSize = 10 * 1024 * 1024; // 将图片大小限制为 10M
+        this.editor1.customConfig.uploadImgMaxLength = 6; // 限制一次最多上传 3 张图片
+        this.editor1.customConfig.uploadImgTimeout = 3 * 60 * 1000; // 设置超时时间
+        //下面的为一些配置参数，默认全部都有，我们需要那些留下那些即可
+        this.editor1.customConfig.menus = [
+          "head", // 标题
+          "bold", // 粗体
+          "fontSize", // 字号
+          "fontName", // 字体
+          "italic", // 斜体
+          "underline", // 下划线
+          "strikeThrough", // 删除线
+          "foreColor", // 文字颜色
+          "backColor", // 背景颜色
+          "link", // 插入链接
+          "list", // 列表
+          "justify", // 对齐方式
+          // 'quote',  // 引用
+          "emoticon", // 表情
+          "image", // 插入图片
+          "table", // 表格
+          "video", // 插入视频
+          "code", // 插入代码
+          "undo", // 撤销
+          "redo" // 重复
+        ];
+        //聚焦时候函数
+        this.editor1.customConfig.onfocus = function() {
+          //console.log("onfocus")
+        };
+        //失焦时候函数
+        this.editor1.customConfig.onblur = function() {
+          //console.log("onblur")
+        };
+        //change事件，当富文本编辑器内容发生变化时便会触发此函数
+        this.editor1.customConfig.onchange = (html)=> {
+
+          this.addFrom.desc_pack = html
+        };
+        this.editor1.create(); //以上配置完成之后调用其create()方法进行创建
+        this.editor1.txt.html(); //创建完成之后的默认内容
+
+        /*常见问题*/
+        this.editor2 = new E(this.$refs.editor2)
+        this.editor2.customConfig.uploadImgShowBase64 = false //图片以base64形式保存
+        this.editor2.customConfig.uploadImgServer = 'http://47.94.106.106:8000/rich/text/image/'; // 配置服务器端地址
+        this.editor2.customConfig.uploadImgHeaders = {}; // 自定义 header
+        this.editor2.customConfig.uploadFileName = "file"; // 后端接受上传文件的参数名
+        this.editor2.customConfig.uploadImgMaxSize = 10 * 1024 * 1024; // 将图片大小限制为 10M
+        this.editor2.customConfig.uploadImgMaxLength = 6; // 限制一次最多上传 3 张图片
+        this.editor2.customConfig.uploadImgTimeout = 3 * 60 * 1000; // 设置超时时间
+        //下面的为一些配置参数，默认全部都有，我们需要那些留下那些即可
+        this.editor2.customConfig.menus = [
+          "head", // 标题
+          "bold", // 粗体
+          "fontSize", // 字号
+          "fontName", // 字体
+          "italic", // 斜体
+          "underline", // 下划线
+          "strikeThrough", // 删除线
+          "foreColor", // 文字颜色
+          "backColor", // 背景颜色
+          "link", // 插入链接
+          "list", // 列表
+          "justify", // 对齐方式
+          // 'quote',  // 引用
+          "emoticon", // 表情
+          "image", // 插入图片
+          "table", // 表格
+          "video", // 插入视频
+          "code", // 插入代码
+          "undo", // 撤销
+          "redo" // 重复
+        ];
+        //聚焦时候函数
+        this.editor2.customConfig.onfocus = function() {
+          //console.log("onfocus")
+        };
+        //失焦时候函数
+        this.editor2.customConfig.onblur = function() {
+          //console.log("onblur")
+        };
+        //change事件，当富文本编辑器内容发生变化时便会触发此函数
+        this.editor2.customConfig.onchange = (html)=> {
+          this.addFrom.desc_detail = html
+        };
+        this.editor2.create(); //以上配置完成之后调用其create()方法进行创建
+        this.editor2.txt.html(); //创建完成之后的默认内容
+      },
+
+      handleClick(tab, event) {
+        console.log(tab, event);
+      },
 
       // 一级分类
       getCategories1(event){
@@ -409,15 +755,8 @@
         this.addFrom.category3_id = event
       },
 
-      onEditorChange({ quill, html, text }) {
-        console.log(quill, html, text)
-        this.content = html;
-      },
-
-      onEditorBlur(){},
-      onEditorFocus(){},
-
       getAdd(){
+        console.log(this.addFrom.desc_detail)
         SpuaddDetails(this.addFrom).then(res=>{
           console.log(res)
           if(res.status === 201){
@@ -446,6 +785,7 @@
       },
 
       getEdit(){
+        console.log(this.addFrom)
         SpueditDetails(this.addFrom).then(res=>{
           console.log(res,res.status)
           if(res.status === 200){
@@ -474,8 +814,6 @@
       },
 
       submitForm(){
-        console.log(this.addFrom.name)
-
         if(this.addFrom.name === '' || this.addFrom.name === undefined){
           this.$message.error('商品名称不能为空')
           return
@@ -524,7 +862,8 @@
           this.$message.error('包装清单不能为空')
           return
         }
-        if(this.data !== ''){
+        if(this.id !== ''){
+          console.log('111')
           this.getEdit()
         }else{
           this.getAdd()
@@ -539,6 +878,15 @@
 <style scoped>
   page{
     position: relative;
+  }
+  #editorElem /deep/ .w-e-text-container{
+    height:400px !important;
+  }
+  #editorElem1 /deep/ .w-e-text-container{
+    height:200px !important;
+  }
+  #editorElem2 /deep/ .w-e-text-container{
+    height:200px !important;
   }
   .editor-btn{
     margin-top: 20px;

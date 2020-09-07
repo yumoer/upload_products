@@ -34,7 +34,7 @@
         </el-form-item>
       </el-form>
 
-      <el-form style="position: fixed;right:100px;bottom: 20px;z-index: 1">
+      <el-form style="text-align: right;margin-right: 30px">
         <el-form-item >
           <el-button class="editor-btn" type="primary" @click="submitForm()">{{data !== ''?'修改':'保存'}}</el-button>
           <el-button class="editor-btn" @click="goBack()">返回上一页</el-button>

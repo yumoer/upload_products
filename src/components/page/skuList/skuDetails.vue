@@ -17,7 +17,7 @@
         </el-form-item>
 
         <el-form-item label="图片" prop="images" v-if="id">
-          <span>图片上传最多5张，修改图片时请删除之前所有图片重新上传</span>
+          <span>图片上传最多5张，删除图片需要从后往前删,第一张不能删除</span>
           <div>
             <el-upload
               action="#"
@@ -154,7 +154,7 @@
           <el-input v-model="addFrom.source" style="width:350px" placeholder="请输入所属单位"></el-input>
         </el-form-item>-->
       </el-form>
-      <el-form style="position: fixed;right:100px;bottom: 20px;z-index: 1">
+      <el-form style="text-align: right;margin-right: 30px">
         <el-form-item >
           <el-button class="editor-btn" type="primary" @click="submitForm()">{{id !== undefined?'修改':'保存'}}</el-button>
           <el-button class="editor-btn" @click="goBack()">返回上一页</el-button>
@@ -165,7 +165,7 @@
 </template>
 
 <script>
-  import {SkuDetails,SpuList,SkuaddDetails,SkueditDetails} from '../../../api/index'
+  import {SkuDetails,SpuList,SkuaddDetails,SkueditDetails,skuDelImage} from '../../../api/index'
   import axios from 'axios'
   export default {
     name: 'editor',
@@ -453,12 +453,52 @@
           this.image4 = fileList[3].raw;
           this.image5 = fileList[4].raw;
         }
-
       },
-
       handleRemove(file, fileList) {
-        console.log(file, fileList);
-        this.addFrom.images.splice(index, 1);
+        console.log(file, fileList.length);
+        let index = ''
+        if(file.url === this.addFrom.images[0].image1){
+          index = 'image1'
+        }else if(file.url === this.addFrom.images[0].image2){
+          index = 'image2'
+        }else if(file.url === this.addFrom.images[0].image3){
+          index = 'image3'
+        }else if(file.url === this.addFrom.images[0].image4){
+          index = 'image4'
+        }else if(file.url === this.addFrom.images[0].image5){
+          index = 'image5'
+        }
+        if('image'+this.fileList.length === index){
+          skuDelImage(this.addFrom.images[0],index).then(res=>{
+            console.log(res,res.status)
+            if(res.status === 204){
+              this.$message.success('删除成功')
+            }
+          }).catch(error=>{
+            if (error.response !== undefined) {
+              switch (error.response.status) {
+                case 500:
+                  this.$message.error('服务器错误')
+                  break
+                case 401:
+                  this.$message.error('登录过期，请重新登录')
+                  localStorage.removeItem('ms_userInfo')
+                  break
+                case 403:
+                  this.$message.error('您没有执行该操作的权限')
+                  break
+                default:
+                  this.$message.error('其他错误')
+                  break
+              }
+            }
+          })
+        }else{
+          this.$message.error('不能从中间删除')
+          setTimeout(function () {
+            window.location.reload()
+          },500)
+        }
       },
 
       handlePictureCardPreview(file) {
@@ -586,15 +626,8 @@
               }
             })
           }
-
-
         }else{
-
           this.getAdd()
-
-
-
-
         }
       },
       goBack() {

@@ -267,6 +267,17 @@ export const skuSearchspuList = query => {
   });
 };
 
+//  删除单张sku图片
+export const skuDelImage = (query,index) => {
+  return request({
+    url: '/sku/image/'+query.id+'/?order='+index,
+    method: 'delete',
+    headers:{
+      'Authorization': 'JWT ' +JSON.parse(localStorage.getItem("ms_userInfo")).data.token
+    }
+  });
+};
+
 
 
 

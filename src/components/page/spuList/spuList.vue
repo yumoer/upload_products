@@ -115,7 +115,7 @@
           this.tableData = res.data.results;
           this.pageTotal = res.data.count;
         }).catch(error=>{
-          console.log(error)
+          console.log(error.response)
           if (error.response !== undefined) {
             switch (error.response.status) {
               case 500:
@@ -176,7 +176,6 @@
 
       // 触发搜索按钮
       handleSearch() {
-        console.log(this.query.q)
         if(this.query.q === ''){
           this.getData()
         }else{
@@ -223,11 +222,12 @@
         this.$router.push({name:'specificationList',query:{spuId:JSON.stringify(row.id)}})
       },
       handleAdd(){
-        this.$router.push({name:'spuDetails',query:{data:JSON.stringify('')}})
+        this.$router.push({name:'spuDetails',query:{id:JSON.stringify('')}})
       },
       // 编辑操作
       handleEdit(index, row) {
-        this.$router.push({name:'spuDetails',query:{data:JSON.stringify(row)}})
+        console.log(index, row)
+        this.$router.push({name:'spuDetails',query:{id:JSON.stringify(row.id)}})
       },
       // 保存编辑
       saveEdit() {

@@ -63,12 +63,13 @@ export default {
             }
           }).catch(err=>{
             console.log(err.response)
+            if(err.response.status === 507 ){
+              this.$message.error(err.response.data.message)
+            }
             this.$message.error('用户名或密码错误')
           })
         }
       })
-
-
     },
     /*/!* JSEncrypt加密 *!/
     rsaPublicData (data) {

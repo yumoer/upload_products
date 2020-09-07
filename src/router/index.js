@@ -79,6 +79,7 @@ export default new Router({
             component: () => import(/* webpackChunkName: "login" */ '../components/page/Login.vue'),
             meta: { title: '登录' }
         },
+
     ],
     scrollBehavior (to, from, savedPosition) {
       if (savedPosition) {
